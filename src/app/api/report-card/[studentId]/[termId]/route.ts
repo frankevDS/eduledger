@@ -1,0 +1,122 @@
+import { NextResponse } from "next/server";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { createClient } from "@/lib/supabase/server";
+
+const INK = rgb(0x17 / 255, 0x23 / 255, 0x3d / 255);
+const BRASS = rgb(0xb8 / 255, 0x89 / 255, 0x2e / 255);
+const GREEN = rgb(0x2f / 255, 0x6b / 255, 0x4f / 255);
+const PAPER_CARD = rgb(0xfb / 255, 0xfa / 255, 0xf3 / 255);
+const LINE = rgb(0xd9 / 255, 0xd3 / 255, 0xbe / 255);
+
+function gradeFor(score: number): string {
+  if (score >= 80) return "1";
+  if (score >= 70) return "2";
+  if (score >= 65) return "3";
+  if (score >= 60) return "4";
+  if (score >= 55) return "5";
+  if (score >= 50) return "6";
+  return "9";
+}
+
+// Renders the same design language as the standalone Python/reportlab
+// version (EduLedger_ReportCard_AmaMensah.pdf) but driven by live database
+// rows instead of hard-coded sample data — this is what "Download PDF"
+// in the Parent portal is actually meant to call.
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ studentId: string; termId: string }> }
+) {
+  const { studentId, termId } = await params;
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+
+  const { data: student, error: studentError } = await supabase
+    .from("students")
+    .select("*, classes(name)")
+    .eq("id", studentId)
+    .single();
+  if (studentError || !student) {
+    // RLS returning nothing here reads identically whether the student
+    // doesn't exist or simply isn't visible to this caller — same 404
+    // either way, which is the correct behavior (don't leak existence).
+    return NextResponse.json({ error: "Student not found" }, { status: 404 });
+  }
+
+  const { data: scores } = await supabase
+    .from("scores")
+    .select("class_score, exam_score, total_score, subjects(name)")
+    .eq("student_id", studentId)
+    .eq("term_id", termId)
+    .eq("status", "approved"); // report cards only ever show approved scores
+
+  const doc = await PDFDocument.create();
+  const page = doc.addPage([595.28, 841.89]); // A4 in points
+  const font = await doc.embedFont(StandardFonts.Helvetica);
+  const bold = await doc.embedFont(StandardFonts.HelveticaBold);
+  const { width, height } = page.getSize();
+
+  // header band
+  page.drawRectangle({ x: 0, y: height - 90, width, height: 90, color: INK });
+  page.drawText("Golden Crest Academy", { x: 110, y: height - 40, size: 16, font: bold, color: rgb(1, 1, 1) });
+  page.drawText("Auto-generated termly report", { x: 110, y: height - 58, size: 9, font, color: BRASS });
+  page.drawCircle({ x: 65, y: height - 45, size: 22, borderColor: BRASS, borderWidth: 1.2 });
+  page.drawText("GCA", { x: 51, y: height - 49, size: 11, font: bold, color: BRASS });
+
+  let y = height - 130;
+  const name = `${student.first_name} ${student.last_name}`;
+  const className = (student as any).classes?.name ?? "";
+
+  page.drawRectangle({ x: 40, y: y - 20, width: width - 80, height: 40, color: PAPER_CARD, borderColor: LINE, borderWidth: 1 });
+  page.drawText(`Student: ${name}`, { x: 50, y: y - 2, size: 10, font: bold, color: INK });
+  page.drawText(`Class: ${className}    Admission No: ${student.admission_no}    DOB: ${student.date_of_birth}`, {
+    x: 50, y: y - 16, size: 8.5, font, color: INK,
+  });
+
+  y -= 60;
+  page.drawText("ACADEMIC RECORD (APPROVED SCORES ONLY)", { x: 40, y, size: 11, font: bold, color: INK });
+  y -= 20;
+
+  const cols = [40, 260, 330, 400, 470];
+  ["Subject", "Class", "Exam", "Total", "Grade"].forEach((h, i) =>
+    page.drawText(h, { x: cols[i], y, size: 9, font: bold, color: rgb(1, 1, 1) })
+  );
+  page.drawRectangle({ x: 40, y: y - 4, width: width - 80, height: 18, color: INK });
+  ["Subject", "Class", "Exam", "Total", "Grade"].forEach((h, i) =>
+    page.drawText(h, { x: cols[i] + 4, y: y + 1, size: 9, font: bold, color: rgb(1, 1, 1) })
+  );
+  y -= 22;
+
+  if (!scores || scores.length === 0) {
+    page.drawText("No approved scores for this term yet.", { x: 40, y, size: 9, font, color: INK });
+    y -= 18;
+  } else {
+    for (const row of scores as any[]) {
+      const total = Number(row.total_score ?? 0);
+      page.drawText(row.subjects?.name ?? "—", { x: cols[0] + 4, y, size: 9, font, color: INK });
+      page.drawText(String(row.class_score ?? "—"), { x: cols[1] + 4, y, size: 9, font, color: INK });
+      page.drawText(String(row.exam_score ?? "—"), { x: cols[2] + 4, y, size: 9, font, color: INK });
+      page.drawText(String(total.toFixed(0)), { x: cols[3] + 4, y, size: 9, font: bold, color: INK });
+      page.drawText(gradeFor(total), { x: cols[4] + 4, y, size: 9, font: bold, color: GREEN });
+      y -= 18;
+    }
+  }
+
+  y -= 10;
+  page.drawText(
+    "Grading scale (Ghana basic, editable per school): 1-2 Excellent · 3-5 Good/Credit · 6-7 Pass · 8-9 Needs Improvement.",
+    { x: 40, y, size: 7.5, font, color: INK }
+  );
+  y -= 30;
+  page.drawText("Generated by EduLedger — reflects only scores the Head Teacher has approved.", {
+    x: 40, y: 30, size: 7.5, font, color: INK,
+  });
+
+  const pdfBytes = await doc.save();
+  return new NextResponse(Buffer.from(pdfBytes), {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `inline; filename="report-card-${student.admission_no}.pdf"`,
+    },
+  });
+}

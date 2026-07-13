@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Papa from "papaparse";
-import { Card, Button, TextInput, PageHeader, C } from "@/components/ui";
+import { Card, Button, TextInput, PageHeader, StaffNav, C } from "@/components/ui";
 
 type Branch = { id: string; name: string };
 type ClassRow = { id: string; name: string };
@@ -81,6 +81,7 @@ export default function SetupPage() {
   return (
     <div>
       <PageHeader title="Golden Crest Academy" subtitle="School Setup" />
+      <StaffNav current="/setup" />
       <div style={{ padding: 20, maxWidth: 720, margin: "0 auto" }}>
         <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
           <Button tone={section === "structure" ? C.ink : C.paperCard} textColor={section === "structure" ? "#fff" : C.ink} onClick={() => setSection("structure")}>

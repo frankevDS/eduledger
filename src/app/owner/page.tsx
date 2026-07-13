@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Card, Button, PageHeader, C } from "@/components/ui";
+import { Card, Button, PageHeader, StaffNav, C } from "@/components/ui";
 
 type Branch = { id: string; name: string; country: string; address: string | null };
 type ClassRow = { id: string; name: string };
@@ -80,6 +80,7 @@ export default function OwnerPage() {
   return (
     <div>
       <PageHeader title="Golden Crest Academy" subtitle="Owner Dashboard" />
+      <StaffNav current="/owner" />
       <div style={{ padding: 20, maxWidth: 760, margin: "0 auto" }}>
         {branches.length > 1 && (
           <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>

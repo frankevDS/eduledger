@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Card, Button, PageHeader, Stamp, C } from "@/components/ui";
+import { Card, Button, PageHeader, StaffNav, Stamp, C } from "@/components/ui";
 
 type PendingScore = {
   id: string;
@@ -72,6 +72,7 @@ export default function HeadTeacherPage() {
   return (
     <div>
       <PageHeader title="Golden Crest Academy" subtitle="Head Teacher · Approval Queue" />
+      <StaffNav current="/head" />
       <div style={{ padding: 20, maxWidth: 720, margin: "0 auto" }}>
         {pending.length === 0 && (
           <Card style={{ padding: 20 }}>

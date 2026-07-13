@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Card, Button, TextInput, PageHeader, Stamp, C } from "@/components/ui";
+import { Card, Button, TextInput, PageHeader, StaffNav, Stamp, C } from "@/components/ui";
 
 type ClassRow = { id: string; name: string };
 type SubjectRow = { id: string; name: string };
@@ -159,6 +159,7 @@ export default function TeacherPage() {
   return (
     <div>
       <PageHeader title="Golden Crest Academy" subtitle={`Class Teacher · ${myClass.name}`} />
+      <StaffNav current="/teacher" />
       <div style={{ padding: 20, maxWidth: 720, margin: "0 auto" }}>
         <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
           <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} style={{ padding: 8, borderRadius: 6, border: `1px solid ${C.line}` }}>

@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Card, Button, PageHeader, Stamp, C } from "@/components/ui";
+import { Card, Button, PageHeader, StaffNav, Stamp, C } from "@/components/ui";
 
 type RouteRow = { id: string; name: string; driver_name: string | null; driver_phone: string | null };
 type Enrollment = {
@@ -87,6 +87,7 @@ export default function TransportPage() {
   return (
     <div>
       <PageHeader title="Golden Crest Academy" subtitle="Transport" />
+      <StaffNav current="/transport" />
       <div style={{ padding: 20, maxWidth: 720, margin: "0 auto" }}>
         {routes.length === 0 ? (
           <Card style={{ padding: 16, marginBottom: 16 }}>

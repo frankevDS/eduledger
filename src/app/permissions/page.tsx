@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Card, PageHeader, C } from "@/components/ui";
+import { Card, PageHeader, StaffNav, C } from "@/components/ui";
 
 const ROLES = ["owner", "head_teacher", "class_teacher", "parent"] as const;
 const ACTIONS = [
@@ -84,6 +84,7 @@ export default function PermissionsPage() {
   return (
     <div>
       <PageHeader title="Golden Crest Academy" subtitle="Permissions" />
+      <StaffNav current="/permissions" />
       <div style={{ padding: 20, maxWidth: 760, margin: "0 auto" }}>
         <p style={{ fontSize: 12, color: C.inkSoft, marginBottom: 16 }}>
           Tap a cell to grant or revoke access. Enforced by the database itself (Postgres Row-Level Security), not just this screen.

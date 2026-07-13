@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Card, PageHeader, C } from "@/components/ui";
+import { Card, PageHeader, StaffNav, C } from "@/components/ui";
 
 type ClassRow = { id: string; name: string };
 type FeeRow = { studentId: string; name: string; billed: number; paid: number; balance: number };
@@ -66,6 +66,7 @@ export default function FeesPage() {
   return (
     <div>
       <PageHeader title="Golden Crest Academy" subtitle="Fees Ledger" />
+      <StaffNav current="/fees" />
       <div style={{ padding: 20, maxWidth: 720, margin: "0 auto" }}>
         <select
           value={classId}

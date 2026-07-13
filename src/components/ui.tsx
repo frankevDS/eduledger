@@ -54,6 +54,35 @@ export function Stamp({ children, tone = C.ink }: { children: React.ReactNode; t
   );
 }
 
+export function StaffNav({ current }: { current: string }) {
+  const links = [
+    { href: "/owner", label: "Dashboard" },
+    { href: "/head", label: "Approvals" },
+    { href: "/teacher", label: "Register" },
+    { href: "/fees", label: "Fees" },
+    { href: "/transport", label: "Transport" },
+    { href: "/permissions", label: "Permissions" },
+    { href: "/setup", label: "Setup" },
+  ];
+  return (
+    <div style={{ background: C.paperCard, borderBottom: `1px solid ${C.line}`, padding: "0 20px", display: "flex", gap: 4, overflowX: "auto" }}>
+      {links.map((l) => (
+        <a
+          key={l.href}
+          href={l.href}
+          style={{
+            padding: "10px 14px", fontSize: 13, fontWeight: 500, textDecoration: "none", whiteSpace: "nowrap",
+            color: current === l.href ? C.ink : C.inkSoft,
+            borderBottom: current === l.href ? `2px solid ${C.brass}` : "2px solid transparent",
+          }}
+        >
+          {l.label}
+        </a>
+      ))}
+    </div>
+  );
+}
+
 export function PageHeader({ title, subtitle, showLogout = true }: { title: string; subtitle?: string; showLogout?: boolean }) {
   const router = useRouter();
 

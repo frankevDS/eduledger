@@ -115,7 +115,7 @@ export default function ParentPage() {
               <tbody>
                 {scores.map((s) => (
                   <tr key={s.id} style={{ borderTop: `1px solid ${C.line}` }}>
-                    <td style={{ padding: "6px 0" }}>{s.subjects?.name}</td>
+                    <td style={{ padding: "6px 0" }}>{s.subjects?.name ?? "(subject not found)"}</td>
                     <td style={{ textAlign: "right" }}>{s.class_score ?? "—"}</td>
                     <td style={{ textAlign: "right" }}>{s.exam_score ?? "—"}</td>
                     <td style={{ textAlign: "right", fontWeight: 600 }}>{s.total_score}</td>

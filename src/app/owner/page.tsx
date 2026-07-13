@@ -13,6 +13,7 @@ export default function OwnerPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [notAuthorized, setNotAuthorized] = useState(false);
+  const [role, setRole] = useState("");
   const [branches, setBranches] = useState<Branch[]>([]);
   const [branchId, setBranchId] = useState<string>("");
   const [classes, setClasses] = useState<ClassRow[]>([]);
@@ -36,6 +37,7 @@ export default function OwnerPage() {
         return;
       }
       const { data: profile } = await supabase.from("profiles").select("role").eq("id", auth.user.id).single();
+      setRole(profile?.role ?? "");
       if (!profile || profile.role !== "owner") {
         setNotAuthorized(true);
         setLoading(false);
@@ -62,6 +64,7 @@ export default function OwnerPage() {
     return (
       <div>
         <PageHeader title="Golden Crest Academy" subtitle="Owner" />
+        <StaffNav current="/owner" role={role} />
         <div style={{ padding: 20 }}>Your account isn&apos;t set up as Owner.</div>
       </div>
     );
@@ -70,6 +73,7 @@ export default function OwnerPage() {
     return (
       <div>
         <PageHeader title="Golden Crest Academy" subtitle="Owner" />
+        <StaffNav current="/owner" role={role} />
         <div style={{ padding: 20 }}>No branches found for your account yet.</div>
       </div>
     );
@@ -80,7 +84,7 @@ export default function OwnerPage() {
   return (
     <div>
       <PageHeader title="Golden Crest Academy" subtitle="Owner Dashboard" />
-      <StaffNav current="/owner" />
+      <StaffNav current="/owner" role={role} />
       <div style={{ padding: 20, maxWidth: 760, margin: "0 auto" }}>
         {branches.length > 1 && (
           <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>

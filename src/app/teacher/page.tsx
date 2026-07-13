@@ -16,6 +16,7 @@ export default function TeacherPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [notAuthorized, setNotAuthorized] = useState(false);
+  const [role, setRole] = useState("");
 
   const [myClass, setMyClass] = useState<ClassRow | null>(null);
   const [subjects, setSubjects] = useState<SubjectRow[]>([]);
@@ -45,6 +46,7 @@ export default function TeacherPage() {
     }
 
     const { data: profile } = await supabase.from("profiles").select("role").eq("id", auth.user.id).single();
+    setRole(profile?.role ?? "");
     if (!profile || !["class_teacher", "head_teacher", "owner"].includes(profile.role)) {
       setNotAuthorized(true);
       setLoading(false);
@@ -141,6 +143,7 @@ export default function TeacherPage() {
     return (
       <div>
         <PageHeader title="Golden Crest Academy" subtitle="Teacher" />
+        <StaffNav current="/teacher" role={role} />
         <div style={{ padding: 20 }}>Your account isn&apos;t set up as a teacher. Contact the school.</div>
       </div>
     );
@@ -149,6 +152,7 @@ export default function TeacherPage() {
     return (
       <div>
         <PageHeader title="Golden Crest Academy" subtitle="Teacher" />
+        <StaffNav current="/teacher" role={role} />
         <div style={{ padding: 20 }}>
           No class is assigned to you yet (<span className="font-mono">classes.class_teacher_id</span> isn&apos;t set for your profile). Ask the Head Teacher to assign you a class.
         </div>
@@ -159,7 +163,7 @@ export default function TeacherPage() {
   return (
     <div>
       <PageHeader title="Golden Crest Academy" subtitle={`Class Teacher · ${myClass.name}`} />
-      <StaffNav current="/teacher" />
+      <StaffNav current="/teacher" role={role} />
       <div style={{ padding: 20, maxWidth: 720, margin: "0 auto" }}>
         <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
           <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} style={{ padding: 8, borderRadius: 6, border: `1px solid ${C.line}` }}>

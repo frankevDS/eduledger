@@ -19,6 +19,7 @@ export default function TransportPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [notAuthorized, setNotAuthorized] = useState(false);
+  const [role, setRole] = useState("");
   const [routes, setRoutes] = useState<RouteRow[]>([]);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [selectedRoute, setSelectedRoute] = useState("");
@@ -39,6 +40,7 @@ export default function TransportPage() {
         return;
       }
       const { data: profile } = await supabase.from("profiles").select("role").eq("id", auth.user.id).single();
+      setRole(profile?.role ?? "");
       if (!profile || !["owner", "head_teacher", "class_teacher"].includes(profile.role)) {
         setNotAuthorized(true);
         setLoading(false);
@@ -76,6 +78,7 @@ export default function TransportPage() {
     return (
       <div>
         <PageHeader title="Golden Crest Academy" subtitle="Transport" />
+        <StaffNav current="/transport" role={role} />
         <div style={{ padding: 20 }}>Your account doesn&apos;t have access to Transport.</div>
       </div>
     );
@@ -87,7 +90,7 @@ export default function TransportPage() {
   return (
     <div>
       <PageHeader title="Golden Crest Academy" subtitle="Transport" />
-      <StaffNav current="/transport" />
+      <StaffNav current="/transport" role={role} />
       <div style={{ padding: 20, maxWidth: 720, margin: "0 auto" }}>
         {routes.length === 0 ? (
           <Card style={{ padding: 16, marginBottom: 16 }}>

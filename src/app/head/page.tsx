@@ -19,6 +19,7 @@ export default function HeadTeacherPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [notAuthorized, setNotAuthorized] = useState(false);
+  const [role, setRole] = useState("");
   const [pending, setPending] = useState<PendingScore[]>([]);
   const [actioning, setActioning] = useState<Record<string, boolean>>({});
 
@@ -37,6 +38,7 @@ export default function HeadTeacherPage() {
         return;
       }
       const { data: profile } = await supabase.from("profiles").select("role").eq("id", auth.user.id).single();
+      setRole(profile?.role ?? "");
       if (!profile || !["head_teacher", "owner"].includes(profile.role)) {
         setNotAuthorized(true);
         setLoading(false);
@@ -64,6 +66,7 @@ export default function HeadTeacherPage() {
     return (
       <div>
         <PageHeader title="Golden Crest Academy" subtitle="Head Teacher" />
+        <StaffNav current="/head" role={role} />
         <div style={{ padding: 20 }}>Your account isn&apos;t set up as Head Teacher or Owner.</div>
       </div>
     );
@@ -72,7 +75,7 @@ export default function HeadTeacherPage() {
   return (
     <div>
       <PageHeader title="Golden Crest Academy" subtitle="Head Teacher · Approval Queue" />
-      <StaffNav current="/head" />
+      <StaffNav current="/head" role={role} />
       <div style={{ padding: 20, maxWidth: 720, margin: "0 auto" }}>
         {pending.length === 0 && (
           <Card style={{ padding: 20 }}>

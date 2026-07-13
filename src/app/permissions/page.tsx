@@ -22,6 +22,7 @@ export default function PermissionsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [notAuthorized, setNotAuthorized] = useState(false);
+  const [role, setRole] = useState("");
   const [branchId, setBranchId] = useState("");
   const [rows, setRows] = useState<PermRow[]>([]);
   const [saving, setSaving] = useState<string | null>(null);
@@ -40,6 +41,7 @@ export default function PermissionsPage() {
         return;
       }
       const { data: profile } = await supabase.from("profiles").select("role, branch_id").eq("id", auth.user.id).single();
+      setRole(profile?.role ?? "");
       if (!profile || profile.role !== "owner") {
         setNotAuthorized(true);
         setLoading(false);
@@ -76,6 +78,7 @@ export default function PermissionsPage() {
     return (
       <div>
         <PageHeader title="Golden Crest Academy" subtitle="Permissions" />
+        <StaffNav current="/permissions" role={role} />
         <div style={{ padding: 20 }}>Only the Owner can view or edit the permission matrix.</div>
       </div>
     );
@@ -84,7 +87,7 @@ export default function PermissionsPage() {
   return (
     <div>
       <PageHeader title="Golden Crest Academy" subtitle="Permissions" />
-      <StaffNav current="/permissions" />
+      <StaffNav current="/permissions" role={role} />
       <div style={{ padding: 20, maxWidth: 760, margin: "0 auto" }}>
         <p style={{ fontSize: 12, color: C.inkSoft, marginBottom: 16 }}>
           Tap a cell to grant or revoke access. Enforced by the database itself (Postgres Row-Level Security), not just this screen.

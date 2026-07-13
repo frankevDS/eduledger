@@ -17,6 +17,7 @@ export default function SetupPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [notAuthorized, setNotAuthorized] = useState(false);
+  const [role, setRole] = useState("");
   const [branches, setBranches] = useState<Branch[]>([]);
   const [branchId, setBranchId] = useState("");
   const [classes, setClasses] = useState<ClassRow[]>([]);
@@ -48,6 +49,7 @@ export default function SetupPage() {
         return;
       }
       const { data: profile } = await supabase.from("profiles").select("role").eq("id", auth.user.id).single();
+      setRole(profile?.role ?? "");
       if (!profile || !["owner", "head_teacher"].includes(profile.role)) {
         setNotAuthorized(true);
         setLoading(false);
@@ -73,6 +75,7 @@ export default function SetupPage() {
     return (
       <div>
         <PageHeader title="Golden Crest Academy" subtitle="Setup" />
+        <StaffNav current="/setup" role={role} />
         <div style={{ padding: 20 }}>Only the Owner or Head Teacher can set up the school.</div>
       </div>
     );
@@ -81,7 +84,7 @@ export default function SetupPage() {
   return (
     <div>
       <PageHeader title="Golden Crest Academy" subtitle="School Setup" />
-      <StaffNav current="/setup" />
+      <StaffNav current="/setup" role={role} />
       <div style={{ padding: 20, maxWidth: 720, margin: "0 auto" }}>
         <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
           <Button tone={section === "structure" ? C.ink : C.paperCard} textColor={section === "structure" ? "#fff" : C.ink} onClick={() => setSection("structure")}>

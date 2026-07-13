@@ -12,6 +12,7 @@ export default function FeesPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [notAuthorized, setNotAuthorized] = useState(false);
+  const [role, setRole] = useState("");
   const [classes, setClasses] = useState<ClassRow[]>([]);
   const [classId, setClassId] = useState("");
   const [rows, setRows] = useState<FeeRow[]>([]);
@@ -30,6 +31,7 @@ export default function FeesPage() {
         return;
       }
       const { data: profile } = await supabase.from("profiles").select("role").eq("id", auth.user.id).single();
+      setRole(profile?.role ?? "");
       if (!profile || !["owner", "head_teacher"].includes(profile.role)) {
         setNotAuthorized(true);
         setLoading(false);
@@ -55,6 +57,7 @@ export default function FeesPage() {
     return (
       <div>
         <PageHeader title="Golden Crest Academy" subtitle="Fees" />
+        <StaffNav current="/fees" role={role} />
         <div style={{ padding: 20 }}>Only the Owner or Head Teacher can view the fees ledger.</div>
       </div>
     );
@@ -66,7 +69,7 @@ export default function FeesPage() {
   return (
     <div>
       <PageHeader title="Golden Crest Academy" subtitle="Fees Ledger" />
-      <StaffNav current="/fees" />
+      <StaffNav current="/fees" role={role} />
       <div style={{ padding: 20, maxWidth: 720, margin: "0 auto" }}>
         <select
           value={classId}

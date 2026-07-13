@@ -54,7 +54,21 @@ export function Stamp({ children, tone = C.ink }: { children: React.ReactNode; t
   );
 }
 
-export function StaffNav({ current }: { current: string }) {
+// This mapping must match each page's own authorization check exactly
+// (see the `!["owner", ...].includes(profile.role)` line near the top of
+// each page component) — it's duplicated here for display purposes only;
+// the pages themselves are what actually enforce access.
+const NAV_ACCESS: Record<string, string[]> = {
+  "/owner": ["owner"],
+  "/head": ["head_teacher", "owner"],
+  "/teacher": ["class_teacher", "head_teacher", "owner"],
+  "/fees": ["owner", "head_teacher"],
+  "/transport": ["owner", "head_teacher", "class_teacher"],
+  "/permissions": ["owner"],
+  "/setup": ["owner", "head_teacher"],
+};
+
+export function StaffNav({ current, role }: { current: string; role?: string }) {
   const links = [
     { href: "/owner", label: "Dashboard" },
     { href: "/head", label: "Approvals" },
@@ -63,7 +77,8 @@ export function StaffNav({ current }: { current: string }) {
     { href: "/transport", label: "Transport" },
     { href: "/permissions", label: "Permissions" },
     { href: "/setup", label: "Setup" },
-  ];
+  ].filter((l) => !role || NAV_ACCESS[l.href]?.includes(role));
+
   return (
     <div style={{ background: C.paperCard, borderBottom: `1px solid ${C.line}`, padding: "0 20px", display: "flex", gap: 4, overflowX: "auto" }}>
       {links.map((l) => (

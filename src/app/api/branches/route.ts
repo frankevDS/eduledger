@@ -11,7 +11,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("branches")
-    .select("id, name, country, address, junior_label, senior_label")
+    .select("id, name, country, address, junior_label, senior_label, logo_url, motto, about, primary_color, onboarded")
     .order("name");
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });

@@ -42,9 +42,23 @@ function LoginForm() {
     // than taking them anywhere useful.
     const { data: profile } = await supabase
       .from("profiles")
-      .select("role")
+      .select("role, branch_id")
       .eq("id", signInData.user.id)
       .single();
+
+    // First-run: if this branch has never been branded (no school name/logo
+    // saved yet) and this is someone who could actually fix that, send them
+    // to Settings before anything else — this is the "before the main load"
+    // requirement from the branding request, implemented as a redirect
+    // rather than a hard gate, so it never locks anyone out permanently.
+    if (profile?.branch_id && ["owner", "head_teacher"].includes(profile.role)) {
+      const { data: branch } = await supabase.from("branches").select("onboarded").eq("id", profile.branch_id).single();
+      if (branch && !branch.onboarded) {
+        setBusy(false);
+        router.push("/settings");
+        return;
+      }
+    }
 
     setBusy(false);
     const destination =

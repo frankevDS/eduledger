@@ -61,22 +61,26 @@ export function Stamp({ children, tone = C.ink }: { children: React.ReactNode; t
 const NAV_ACCESS: Record<string, string[]> = {
   "/owner": ["owner"],
   "/head": ["head_teacher", "owner"],
+  "/classes": ["owner", "head_teacher"],
   "/teacher": ["class_teacher", "head_teacher", "owner"],
   "/fees": ["owner", "head_teacher"],
   "/transport": ["owner", "head_teacher", "class_teacher"],
   "/permissions": ["owner"],
   "/setup": ["owner", "head_teacher"],
+  "/settings": ["owner", "head_teacher"],
 };
 
 export function StaffNav({ current, role }: { current: string; role?: string }) {
   const links = [
     { href: "/owner", label: "Dashboard" },
     { href: "/head", label: "Approvals" },
-    { href: "/teacher", label: "Register" },
+    { href: "/classes", label: "Classes" },
+    { href: "/teacher", label: "My Register" },
     { href: "/fees", label: "Fees" },
     { href: "/transport", label: "Transport" },
     { href: "/permissions", label: "Permissions" },
     { href: "/setup", label: "Setup" },
+    { href: "/settings", label: "Settings" },
   ].filter((l) => !role || NAV_ACCESS[l.href]?.includes(role));
 
   return (
